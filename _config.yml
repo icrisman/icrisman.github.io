@@ -85,4 +85,4 @@ server:
 deploy:
   type: git
   repo: https://icrisman@github.com/icrisman/icrisman.github.io.git
-  branch: master
+  branch: deploy
