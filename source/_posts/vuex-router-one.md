@@ -5,7 +5,8 @@ categories: front-end
 tags: vuex
 ---
 
-项目中遇到的问题，记录一下解决方案。
+项目中遇到的问题，记录一下。
+
 ![pic](https://blog-10039692.file.myqcloud.com/1504751009021_60_1504751009399.jpeg)
 
 <!-- more -->
