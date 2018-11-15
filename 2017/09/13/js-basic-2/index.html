@@ -1,0 +1,325 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>JS 基础 (下) - crisman</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/favicon.ico"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://callfiles.ueibo.com/hexo-theme-laughing/post_background.jpg"><div class="post-title"><h1 class="title">JS 基础 (下)</h1><ul class="meta"><li><i class="icon icon-author"></i>crisman</li><li><i class="icon icon-clock"></i>11 Minutes</li><li><i class="icon icon-calendar"></i>2017年9月13日</li></ul></div></div><div class="article-content" style="max-width:800px"><div style="text-align: center">-·-·-·-·-·-·-·-·-· agenda ·-·-·-·-·-·-·-·-·-</div>
+
+<!-- toc -->
+<a id="more"></a>
+<div style="text-align: center">-·-·-·-·-·-·-·-·-· Let’s start ·-·-·-·-·-·-·-·-·-</div>
+
+
+
+<h2 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h2><h3 id="事件流"><a href="#事件流" class="headerlink" title="事件流"></a>事件流</h3><p>事件流描述的是从页面中接收事件的顺序。</p>
+<ul>
+<li>事件冒泡：IE8及以下</li>
+<li>事件捕获：IE9及以上、其它主流浏览器</li>
+</ul>
+<p>DOM事件流：事件捕获阶段、处于目标阶段、事件冒泡阶段  （IE8及以下不支持</p>
+<h3 id="事件处理程序"><a href="#事件处理程序" class="headerlink" title="事件处理程序"></a>事件处理程序</h3><p>处理事件的函数叫做事件处理程序。</p>
+<ul>
+<li><p>HTML 事件处理程序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;input type=&quot;button&quot; id=&quot;myBtn&quot; value=&quot;Click Me&quot; onclick=&quot;alert(&apos;hello world&apos;)&quot;&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>DOM0级 事件处理程序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">var btn = document.getElementById(&apos;myBtn&apos;)</span><br><span class="line">btn.onclick = function () &#123;</span><br><span class="line">    alert(&apos;Clicked&apos;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>DOM2级 事件处理程序</p>
+<p>  可以添加多个，按添加的顺序执行。</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">var btn = document.getElementById(&apos;myBtn&apos;) btn.addEventListener(&apos;click&apos;, function () &#123;</span><br><span class="line">    alert(this.id)</span><br><span class="line">&#125;, false)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>IE 事件处理程序</p>
+<p>  可以添加多个，按相反的顺序执行。</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">btn.attachEvent(&apos;onclick&apos;, function () &#123;</span><br><span class="line">    alert(&apos;Clicked&apos;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>跨浏览器的事件处理程序</p>
+<p>  使用能力检测来判断。</p>
+</li>
+</ul>
+<h3 id="事件对象"><a href="#事件对象" class="headerlink" title="事件对象"></a>事件对象</h3><p>事件处理程序默认的参数叫做事件对象 event。</p>
+<h4 id="事件对象的属性、方法"><a href="#事件对象的属性、方法" class="headerlink" title="事件对象的属性、方法"></a>事件对象的属性、方法</h4><ul>
+<li><p>DOM 中（通过事件处理程序的参数获得）：</p>
+<ul>
+<li><code>bubbles</code>  事件是否冒泡</li>
+<li><code>cancleable</code>    是否可以取消事件的默认行为</li>
+<li><code>defaultPrevented</code>  为 true 表示已经调用了<code>preventDefault()</code> DOM3级事件中新增</li>
+<li><code>trusted</code>  为 true 表示浏览器生成的，为 false 表示 js 触发的</li>
+<li><p><code>type</code>    事件类型</p>
+</li>
+<li><p><code>currentTarget</code>     当前正在处理事件的那个元素，this 始终等于它</p>
+</li>
+<li><code>target</code>   事件的目标</li>
+<li><code>preventDefault()</code>    取消事件的默认行为，cancleable 为 true 时可使用</li>
+<li><code>stopPropagation()</code>   取消事件的进一步捕获或冒泡。bubbles 为 true时可使用</li>
+</ul>
+</li>
+<li>IE 中 （通过<code>window.event 获得</code>）：<ul>
+<li><code>cancleBubble</code>    默认 false。与<code>stopPropagation()</code>作用相同</li>
+<li><code>returnValue</code>     默认 false。与<code>preventDefault()</code>作用相同</li>
+<li><code>type</code>    与<code>target</code>作用相同</li>
+<li><code>srcElement</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="事件类型"><a href="#事件类型" class="headerlink" title="事件类型"></a>事件类型</h3><ol>
+<li>UI 事件<ul>
+<li><code>load</code> document window img上可触发</li>
+<li><code>unload</code></li>
+<li><code>resize</code> window 上触发</li>
+<li><code>scroll</code> window 上触发</li>
+<li><code>select</code> <code>&lt;select&gt;</code>上触发</li>
+</ul>
+</li>
+<li>焦点事件<ul>
+<li><code>blur</code></li>
+<li><code>focus</code></li>
+<li><code>focusin</code>  &lt;==&gt; focus</li>
+<li><code>focusout</code>  &lt;==&gt; blur</li>
+</ul>
+</li>
+<li>鼠标与滚轮事件<ul>
+<li><code>click</code></li>
+<li><code>dblclick</code>  触发两次 click 事件</li>
+<li><code>mouseenter</code>  不冒泡</li>
+<li><code>mousemove</code></li>
+<li><code>mouseover</code></li>
+<li><code>mousedown</code></li>
+<li><code>mouseup</code>   与 mousedown 相继触发后才会触发 click</li>
+<li><code>mouseleave</code>  不冒泡</li>
+</ul>
+</li>
+<li>键盘与文本事件<ul>
+<li><code>keydown</code>  按下任意键触发</li>
+<li><code>keypress</code>  按下字符键时触发</li>
+<li><code>keyup</code></li>
+</ul>
+</li>
+<li><p>复合事件</p>
+<p> （基本用不到……</p>
+<ul>
+<li><code>compositionstart</code></li>
+<li><code>compositionupdate</code></li>
+<li><code>compositionend</code></li>
+</ul>
+</li>
+<li>变动事件</li>
+<li>HTML5事件<ul>
+<li><code>contextmenu</code> 右击显示上下文菜单</li>
+<li><code>beforeunload</code></li>
+<li><code>DOMContentLoaded</code>  页面的 DOM 树形成后触发，一般早于 <code>load</code> 事件</li>
+<li><code>readystatechange</code></li>
+<li><code>pageshow</code>/<code>pagehide</code>  ff和 opera 支持前进/后退时使用往返缓存<code>bfcache</code>。pageshow 在load 事件后触发，pagehide 在 unload 事件前触发。</li>
+<li><code>hashchange</code></li>
+</ul>
+</li>
+<li>设备事件<ul>
+<li><code>orientationchange</code>  通过<code>window.orientation</code>获取相关信息</li>
+<li><code>deviceorientation</code>  设备方向改变时触发</li>
+<li><code>devicemotion</code></li>
+</ul>
+</li>
+<li>触摸与手势事件<ul>
+<li>触摸事件<ul>
+<li><code>touchstart</code></li>
+<li><code>touchmove</code></li>
+<li><code>touchend</code></li>
+<li><code>touchcancle</code></li>
+</ul>
+</li>
+<li>手势事件：只有两个手指都触摸到事件的接收容器时才会触发这些事件<ul>
+<li><code>gesturestart</code></li>
+<li><code>gesturechange</code></li>
+<li><code>gestureend</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="DOM"><a href="#DOM" class="headerlink" title="DOM"></a>DOM</h2><ul>
+<li><p>Node</p>
+<p>  节点类型，js 中所有的节点类型都继承自 Node 类型。</p>
+<ul>
+<li>nodeType  节点类型，为常量<ul>
+<li>Node.ELEMENT_NODE(1)</li>
+<li>Node.ATTRIBUTE_NODE(2)</li>
+<li>Node.TEXT_NODE(3)</li>
+<li>Node.CDATA_SECTION_NODE(4)</li>
+<li>Node.ENTITY_REFERENCE_NODE(5)</li>
+<li>Node.ENTITY_NODE(6)</li>
+<li>Node.PROCESSING_INSTRUCTION_NODE(7)</li>
+<li>Node.COMMENT_NODE(8)</li>
+<li>Node.DOCUMENT_NODE(9)</li>
+<li>Node.DOCUMENT_TYPE_NODE(10)</li>
+<li>Node.DOCUMENT_FRAGMENT_NODE(11)</li>
+<li>Node.NOTATION_NODE(12)</li>
+</ul>
+</li>
+<li>nodeName  </li>
+<li>nodeValue</li>
+<li>childNodes  子节点，为 NodeList 对象（类 Array 对象）</li>
+<li>parentNode</li>
+<li>previousSibling / nextSibling</li>
+<li>firstChild / lastChild</li>
+<li>hasChildNodes()</li>
+<li><p>ownerDocument 指向表示整个文档的文档节点</p>
+</li>
+<li><p>appendChild(node) 返回新增的节点，如果参数 node 已是文档的一部分，则从旧位置移动到新位置。</p>
+</li>
+<li>insertBefore(toAppendNode, referNode)  referNode为参照节点，如为 null，结果同 appendChild。</li>
+<li>replaceChild(newNode, toReplacedNode)</li>
+<li>cloneNode(isDeep)</li>
+<li>normalize()  处理文本节点，空则删除，多个合并为一个</li>
+</ul>
+</li>
+<li><p>Document</p>
+<p>  文档类型。document 对象是 HTMLDocument (继承自Document) 的实例，它是 window 对象的一个属性。</p>
+<ul>
+<li><p>访问子节点:</p>
+<ul>
+<li>document.documentElement  </li>
+<li>document.childNodes  (一般有两个值，一个 doctype，一个 html)</li>
+</ul>
+</li>
+<li><p>文档信息</p>
+<ul>
+<li>title</li>
+<li>URL</li>
+<li>domain</li>
+<li>referrer</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Element</p>
+<ul>
+<li>getAttribute(‘attrName’)</li>
+<li>setAttribute(‘attrName’, ‘value’)</li>
+<li><p>removeAttribute(‘attrName’)</p>
+</li>
+<li><p>createElement()</p>
+</li>
+</ul>
+</li>
+<li><p>Text</p>
+<ul>
+<li><p>操作节点中的文本</p>
+<ul>
+<li>appendData(‘text’)</li>
+<li>deleteData(offset, count)  从 offset 位置开始删除 count 个字符</li>
+<li>insertData(offset, text)</li>
+<li>replaceData(offset, count, text)</li>
+<li>splitText(offset) 从 offset 位置将当前文本节点分隔为两个文本节点</li>
+</ul>
+</li>
+<li><p>createTextNode(‘text’)</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="DOM-扩展"><a href="#DOM-扩展" class="headerlink" title="DOM 扩展"></a>DOM 扩展</h2><ul>
+<li>selectors API<ul>
+<li>querySelector()</li>
+<li>querySelectorAll()</li>
+<li>matchesSelector()</li>
+</ul>
+</li>
+<li><p>html5</p>
+<ul>
+<li>getElementsByClassName()</li>
+<li>classList 返回元素的 class list（类 Array 对象）<ul>
+<li>add(‘className’)</li>
+<li>contains(‘className’)</li>
+<li>remove(‘className’)</li>
+<li>toggle(‘className’)</li>
+</ul>
+</li>
+<li>document.activeElement  返回当前获得焦点的元素</li>
+<li>HTMLDocument<ul>
+<li>document.readyState  返回 <code>loading</code> or  <code>complete</code></li>
+<li>document.compatMode  返回 <code>CSS1Compat</code>（标准模式） or <code>BackCompat</code>（混杂模式）</li>
+<li>document.head  类似 document.body</li>
+</ul>
+</li>
+<li>document.charset / document.defaultCharset</li>
+<li>data-x 自定义数据<ul>
+<li>dataset 访问自定义属性</li>
+</ul>
+</li>
+<li><p>插入标记</p>
+<ul>
+<li>innerHTML</li>
+<li>outerHTML</li>
+<li>insertAdjacentHTML(‘beforebegin’, ‘elementHTML’)<ul>
+<li>第一个参数必须是： beforebegin  beforeend  afterbegin  afterend</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p> 在使用 innerHTML、 outerHTML 属性和 insertAdjacentHTML()方法时，最好先手工删除要被替换的元素的所有事件处理 程序和 JavaScript 对象属性</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="BOM"><a href="#BOM" class="headerlink" title="BOM"></a>BOM</h2><ul>
+<li><p>window</p>
+<p>  js中的全局对象。</p>
+<ul>
+<li><p>窗口位置</p>
+<p>  浏览器窗口相对于屏幕左/上边的距离：</p>
+<p>  window.screenLeft / screenX</p>
+<p>  window.screenTop / screenY</p>
+</li>
+<li><p>窗口大小</p>
+<p>  页面视图区的大小：<br>  window.innerHeight / innerWidth</p>
+<p>  浏览器窗口本身的大小：<br>  window.outerHeight / outerWidth</p>
+<p>  页面视口的大小：<br>  document.body.clientHeight / clientWidth</p>
+<p>  布局视口的大小：<br>  document.documentElement.clientHeight / clientWidth</p>
+<p>  屏幕的像素宽 / 高度：<br>  screen.width / height</p>
+</li>
+</ul>
+</li>
+<li><p>location</p>
+<p>  与当前 url 相关的一些信息。window.location 与 document.location指向同一个对象。</p>
+<ul>
+<li>hash</li>
+<li>host  服务器名称+端口号</li>
+<li>hostname  服务器名称</li>
+<li>port  端口号</li>
+<li>href</li>
+<li>pathname</li>
+<li>protocol</li>
+<li><p>search</p>
+</li>
+<li><p>location.replace()</p>
+</li>
+<li>location.assign()</li>
+</ul>
+</li>
+<li><p>navigator</p>
+<ul>
+<li>userAgent</li>
+</ul>
+</li>
+<li><p>screen</p>
+<p>  保存于客户端显示器相关的一些信息。</p>
+</li>
+<li><p>history</p>
+<ul>
+<li><p>history.go()</p>
+<p>  参数：<code>正负数</code>表示前进 or 后退，<code>字符串</code>表示跳转的 url</p>
+</li>
+<li>history.back()    后退一页</li>
+<li>history.forward()     前进一页</li>
+</ul>
+</li>
+</ul>
+</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/javascript/">javascript</a><span class="tag-list-count">2</span></li></ul></div><div class="categories"><i class="icon icon-category"></i><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/front-end/">front-end</a><span class="category-list-count">9</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cjoi7voo20006c2p4v5ydc2mp" data-title="JS 基础 (下)" data-url="http://yoursite.com/2017/09/13/js-basic-2/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+var duoshuoQuery = {short_name: siteName};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  //ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0] 
+  || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2017/11/20/promise/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2017/09/06/js-basic/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/icrisman" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="https://weibo.com/p/1005051957963162/home" title="Weibo" target="_blank"><i class="icon icon-weibo"></i></a></li><li><a href="https://www.douban.com/people/72740604/statuses" title="Douban" target="_blank"><i class="icon icon-douban"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2018 crisman<br><small>POWER BY <a href="https://hexo.io" target="_blank">HEXO</a></small><small>, THEME BY <a href="https://github.com/BoizZ/hexo-theme-laughing" target="_blank">LAUGHING</a></small></p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>

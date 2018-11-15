@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>JS 基础 (上) - crisman</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/favicon.ico"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://callfiles.ueibo.com/hexo-theme-laughing/post_background.jpg"><div class="post-title"><h1 class="title">JS 基础 (上)</h1><ul class="meta"><li><i class="icon icon-author"></i>crisman</li><li><i class="icon icon-clock"></i>12 Minutes</li><li><i class="icon icon-calendar"></i>2017年9月6日</li></ul></div></div><div class="article-content" style="max-width:800px"><div style="text-align: center">-·-·-·-·-·-·-·-·-· agenda ·-·-·-·-·-·-·-·-·-</div>
+
+<!-- toc -->
+<a id="more"></a>
+<div style="text-align: center">-·-·-·-·-·-·-·-·-· Let’s start ·-·-·-·-·-·-·-·-·-</div>
+
+<h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><p>5种基本数据类型：undefined、null、String、Boolean、Number</p>
+<p>1种引用数据类型：Object</p>
+<p>es6 新增：Symbol</p>
+<h3 id="数据类型知识点"><a href="#数据类型知识点" class="headerlink" title="数据类型知识点"></a>数据类型知识点</h3><ul>
+<li><p>判断类型</p>
+<p> 判断基础类型：typeof</p>
+<p> 判断引用类型：</p>
+<ul>
+<li>instanceof</li>
+<li>constructor：除了 undefined 和 null 均可以用此判断出类型，缺点是可以被修改</li>
+<li>Object.prototype.toString.call(a)<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Object.prototype.toString.call(&#123;&#125;)  // &quot;[object Object]&quot;</span><br><span class="line">Object.prototype.toString.call([])  // &quot;[object Array]&quot;</span><br><span class="line">Object.prototype.toString.call(/^\d$/)  // &quot;[object RegExp]&quot;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>undefined</p>
+<p>  对未声明的变量使用 <code>typeof</code> 返回 <code>undefined</code>。</p>
+<p>  为区分“未声明”与“未初始化”推荐显式声明变量，没有必要将变量显式声明为 undefined。</p>
+</li>
+<li><p>null</p>
+<p>  null意为“空对象”，<code>typeof null</code> 返回 <code>object</code>。</p>
+<p>  由于 <code>null==undefined</code> 为 <code>true</code>，为区分类型，因此当一个变量意在保存对象但还没保存时，可显式声明为 null。</p>
+</li>
+<li><p>number</p>
+<p>  包括数值、NaN、 Infinity。</p>
+<p>  <code>NaN==NaN</code> 返回 false</p>
+<ul>
+<li><p>Math 对象</p>
+<ul>
+<li><code>Math.ceil()</code>    向上舍入（变大）</li>
+<li><code>Math.round()</code>    四舍五入</li>
+<li><code>Math.floor()</code>    向下舍入（变小）</li>
+</ul>
+</li>
+<li><p>Number.prototype.toFixed()</p>
+<ul>
+<li><code>num.toFixed(2)</code>    在数值上调用，返回string（常用于价格等的舍入）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="数据类型转换"><a href="#数据类型转换" class="headerlink" title="数据类型转换"></a>数据类型转换</h3><p>一张图看懂格式转换：</p>
+<p><img src="/img/js_basic20170906/format.png" alt="一张图看懂格式转换"></p>
+<p>易错点在这里：</p>
+<ul>
+<li><p>转换为数值</p>
+<ul>
+<li><p>Number()  /  +</p>
+<p>  <code>undefined</code>:  NaN</p>
+<p>  <code>null</code>:  0</p>
+<p>  <code>boolean</code>:  0/1</p>
+<p>  <code>string</code>:  “”-&gt;0, “1.2”-&gt;1.2,  “123string”-&gt;NaN</p>
+<p>  <code>object</code>: 先调用valueOf()，没有的话调用toString()</p>
+</li>
+<li><p>parseInt(‘string’,  进制)  按进制解析字符串</p>
+</li>
+<li><p>parseFloat(‘string’)  始终按十进制解析字符串</p>
+</li>
+</ul>
+</li>
+<li><p>转换为字符串</p>
+<p>  <code>toString()</code>，除 undefined、null 外其它值都有此方法</p>
+<p>  <code>num.toString(基数)</code> 表示转换为对应进制的值，默认为10</p>
+</li>
+</ul>
+<h2 id="作用域、闭包、this"><a href="#作用域、闭包、this" class="headerlink" title="作用域、闭包、this"></a>作用域、闭包、this</h2><ul>
+<li><p>作用域</p>
+<p>  js中没有块级作用域，而是函数级作用域。</p>
+</li>
+<li><p>作用域链</p>
+<p>  每个函数都有自己的执行环境，当代码在一个环境中执行时，会创建变量对象的作用域链。作用域链的用途，是保证对执行环境有权访问的所有变量和函数的有序访问。</p>
+<p>  每个作用域是一个执行上下文环境，整体遵循<code>栈</code>的规则。</p>
+<p>  从<code>全局执行环境</code>开始，按照包含关系压入栈内，每个作用域只能访问到当前和被包含的环境的变量，而不能访问到它包含的作用域内的变量。</p>
+<p>  一个函数执行完毕后，它所生成的执行环境出栈，并且被自动销毁。当然这是最理想的情况，有时函数执行结束后，还不能将其执行环境销毁，就是下面要说的闭包了。</p>
+</li>
+<li><p>闭包</p>
+<p>  闭包是指有权访问另一个函数作用域中的变量的函数。</p>
+<p>  主要两种情况：函数作为返回值、函数作为参数传递</p>
+<ul>
+<li><p>函数作为返回值</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function fun () &#123;</span><br><span class="line">    var n = 100</span><br><span class="line"></span><br><span class="line">    return function (x) &#123;</span><br><span class="line">        return x &gt; n ? x : n</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">var f = fun()</span><br><span class="line">f()  // 100</span><br><span class="line">f(200)  // 200</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>函数作为参数传递</p>
+</li>
+</ul>
+</li>
+<li><p>this<br>  this的值取决于调用的模式。</p>
+<p>  js中有4种调用模式：构造函数调用、方法调用、函数调用、apply调用</p>
+<blockquote>
+<p>方法：函数作为对象中的属性时叫做方法</p>
+</blockquote>
+<ul>
+<li><p>构造函数调用</p>
+<p>  构造函数中的 this 指代的是：即将通过此函数 new 出来的对象</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">function Fun () &#123;</span><br><span class="line">    this.name = &apos;fun&apos;</span><br><span class="line">    console.log(this)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">new Fun()  // Fun &#123;name: &quot;fun&quot;&#125;</span><br><span class="line">Fun()  // Window &#123;stop: function, open: function, alert: function, confirm: function, prompt: function…&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>方法调用</p>
+<p>  方法作对象的一个属性被调用时，方法中的 this 指向该对象。</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">var name = &apos;deshan&apos;</span><br><span class="line">var obj = &#123;</span><br><span class="line">    name: &apos;zhenzhu&apos;,</span><br><span class="line">    getName: function () &#123;</span><br><span class="line">        return this.name</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">obj.getName() // &apos;zhenzhu&apos;</span><br><span class="line"></span><br><span class="line">var getName = obj.getName</span><br><span class="line">getName()  // &apos;deshan&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>函数调用</p>
+<p>  普通函数中的 this 指向 window 喽</p>
+</li>
+<li><p>apply 调用</p>
+<p>  一个函数被 apply/call 调用时，函数中的 this 指向第一个参数对象。</p>
+<p>  Nothing to say.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="面向对象、原型链"><a href="#面向对象、原型链" class="headerlink" title="面向对象、原型链"></a>面向对象、原型链</h2><h3 id="原型-prototype"><a href="#原型-prototype" class="headerlink" title="原型 prototype"></a>原型 prototype</h3><p>函数是对象，而对象是属性的集合，js 默认给每一个函数赋予原型属性 —— 即 prototype，它是个对象。prototype 对象默认有个 constructor 属性。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">function Fun () &#123;&#125;</span><br><span class="line">Fun.name = &apos;fun&apos;</span><br><span class="line">Fun.toString = function () &#123;</span><br><span class="line">    return &apos;This is Fun function&apos;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">var fun = new Fun()</span><br><span class="line">fun.__proto__ === Fun.prototype  // true</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ol>
+<li>每个函数默认有 <code>prototype</code> 属性</li>
+<li>每个对象默认有 <code>__proto__</code> 属性</li>
+<li>对象的 <code>__proto__</code> 指向 创建该对象的函数的 <code>prototype</code></li>
+</ol>
+</blockquote>
+<p>根据这3条分析出上段代码的原型如下图：<br><span style="color: #e2e2e2; font-size: 12px">(ノへ￣、)捂脸   看起来好乱……<span></span></span></p>
+<p><img src="/img/js_basic20170906/prototype.jpg" alt="原型链"></p>
+<h3 id="面向对象"><a href="#面向对象" class="headerlink" title="面向对象"></a>面向对象</h3><p>工厂模式创建的对象，类型无法被识别；</p>
+<p>构造函数创建的对象，函数内部 this 下的方法对于每个实例来说都是重新创建的；</p>
+<p>prototype 中的属性和方法 为 该类型的所有实例共享，因此可以将 类 共享的属性和方法添加到 prototype 对象中；</p>
+<p>而对象属性值一般不共享，因此常用来自定义类型的方式是：构造函数与 prototype 组合使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">function Animal () &#123;</span><br><span class="line">    this.name = &apos;animal&apos;</span><br><span class="line">    this.age = 10</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Animal.prototype.getName = function () &#123;</span><br><span class="line">    return this.name</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>js 中的继承主要是通过原型链实现的，利用原型让一个引用类型继承另一个引用类型的属性和方法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">function Animal () &#123;</span><br><span class="line">    this.name = &apos;animal&apos;</span><br><span class="line">    this.age = 10</span><br><span class="line">    this.places = [&apos;home&apos;, &apos;school&apos;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Animal.prototype.getName = function () &#123;</span><br><span class="line">    return this.name</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function Cat () &#123;</span><br><span class="line">    Animal.call(this)  // 解决属性为对象时父子类不能隔离的情况</span><br><span class="line">    this.color = &apos;black&apos;</span><br><span class="line">&#125;</span><br><span class="line">Cat.prototype = new Animal()  // 实现继承</span><br><span class="line">Cat.prototype.constructor = Cat   // 将 constructor 指回子类</span><br><span class="line">Cat.prototype.getColor = function () &#123;</span><br><span class="line">    return this.color</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><p><a href="https://book.douban.com/subject/10546125/" target="_blank" rel="noopener">《JavaScript高级程序设计》</a></p>
+</li>
+<li><p><a href="http://www.cnblogs.com/wangfupeng1988/p/3977924.html" target="_blank" rel="noopener">深入理解javascript原型和闭包</a></p>
+</li>
+</ul>
+</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/javascript/">javascript</a><span class="tag-list-count">2</span></li></ul></div><div class="categories"><i class="icon icon-category"></i><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/front-end/">front-end</a><span class="category-list-count">9</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cjoi7voo4000ac2p4nvnuly6d" data-title="JS 基础 (上)" data-url="http://yoursite.com/2017/09/06/js-basic/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+var duoshuoQuery = {short_name: siteName};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  //ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0] 
+  || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2017/09/13/js-basic-2/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2017/08/18/mobile-terminal-dev/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/icrisman" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="https://weibo.com/p/1005051957963162/home" title="Weibo" target="_blank"><i class="icon icon-weibo"></i></a></li><li><a href="https://www.douban.com/people/72740604/statuses" title="Douban" target="_blank"><i class="icon icon-douban"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2018 crisman<br><small>POWER BY <a href="https://hexo.io" target="_blank">HEXO</a></small><small>, THEME BY <a href="https://github.com/BoizZ/hexo-theme-laughing" target="_blank">LAUGHING</a></small></p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>
