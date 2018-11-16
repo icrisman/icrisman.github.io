@@ -76,7 +76,7 @@ pagination_dir: page
 theme: hexo-theme-laughing
 
 server:
-  port: 4007
+  port: 4009
   compress: true
   header: true
 
