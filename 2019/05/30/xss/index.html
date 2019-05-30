@@ -1,49 +1,15 @@
-<!DOCTYPE html><html lang="zh-cn"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>前端安全之XSS - crisman</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/favicon.ico"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>首页</span></a></li><li><a href="https://github.com/"><span>Github</span></a></li><li><a href="https://juejin.im/"><span>掘金</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://callfiles.ueibo.com/hexo-theme-laughing/post_background.jpg"><div class="post-title"><h1 class="title">前端安全之XSS</h1><ul class="meta"><li><i class="icon icon-author"></i>crisman</li><li><i class="icon icon-clock"></i>8 Minutes</li><li><i class="icon icon-calendar"></i>2019年5月30日</li></ul></div></div><div class="article-content" style="max-width:800px"><h3 id="XSS定义"><a href="#XSS定义" class="headerlink" title="XSS定义"></a>XSS定义</h3><p>XSS, 即为（Cross Site Scripting）, 中文名为跨站脚本, 是发生在<strong>目标用户的浏览器</strong>层面上的，当渲染DOM树的过程成发生了<strong>不在预期内</strong>执行的JS代码时，就发生了XSS攻击。</p>
+<!DOCTYPE html><html lang="zh-cn"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>前端安全之XSS - crisman</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/favicon.ico"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>首页</span></a></li><li><a href="https://github.com/"><span>Github</span></a></li><li><a href="https://juejin.im/"><span>掘金</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://callfiles.ueibo.com/hexo-theme-laughing/post_background.jpg"><div class="post-title"><h1 class="title">前端安全之XSS</h1><ul class="meta"><li><i class="icon icon-author"></i>crisman</li><li><i class="icon icon-clock"></i>19 Minutes</li><li><i class="icon icon-calendar"></i>2019年5月30日</li></ul></div></div><div class="article-content" style="max-width:800px"><h3 id="XSS定义"><a href="#XSS定义" class="headerlink" title="XSS定义"></a>XSS定义</h3><p>XSS, 即为（Cross Site Scripting）, 中文名为跨站脚本, 是发生在<strong>目标用户的浏览器</strong>层面上的，当渲染DOM树的过程成发生了<strong>不在预期内</strong>执行的JS代码时，就发生了XSS攻击。</p>
 <p>跨站脚本的重点不在‘跨站’上，而在于‘脚本’上。大多数XSS攻击的主要方式是嵌入一段远程或者第三方域上的JS代码。实际上是在目标网站的作用域下执行了这段js代码。</p>
 <a id="more"></a>
 <h3 id="XSS攻击方式"><a href="#XSS攻击方式" class="headerlink" title="XSS攻击方式"></a>XSS攻击方式</h3><p><strong>反射型 XSS</strong></p>
 <p>反射型XSS，也叫非持久型XSS，是指发生请求时，XSS代码出现在请求URL中，作为参数提交到服务器，服务器解析并响应。响应结果中包含XSS代码，最后浏览器解析并执行。</p>
 <p>从概念上可以看出，反射型XSS代码是<strong>首先</strong>出现在URL中的，<strong>然后</strong>需要服务端解析，<strong>最后</strong>需要浏览器解析之后XSS代码才能够攻击。</p>
 <p>举一个小栗子。</p>
-<p>使用express起一个web服务器，然后设置一下请求接口。通过ajax的GET请求将参数发往服务器，服务器解析成json后响应。将返回的数据解析后显示到页面上。（没有对返回的数据进行解码和过滤等操作。）</p>
-<pre><code>html
-&lt;textarea name=&quot;txt&quot; id=&quot;txt&quot; cols=&quot;80&quot; rows=&quot;10&quot;&gt;
-&lt;button type=&quot;button&quot; id=&quot;test&quot;&gt;测试&lt;/button&gt;
-
-js
-var test = document.querySelector(&apos;#test&apos;)
-test.addEventListener(&apos;click&apos;, function () {
-  var url = `/test?test=${txt.value}`   // 1. 发送一个GET请求
-  var xhr = new XMLHttpRequest()
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      if ((xhr.status &gt;= 200 &amp;&amp; xhr.status &lt; 300) || xhr.status === 304) {
-        // 3. 客户端解析JSON，并执行
-        var str = JSON.parse(xhr.responseText).test
-        var node = `${str}`
-        document.body.insertAdjacentHTML(&apos;beforeend&apos;, node)
-      } else {
-        console.log(&apos;error&apos;, xhr.responseText)
-      }
-    }
-  }
-  xhr.open(&apos;GET&apos;, url, true)
-  xhr.send(null)
-}, false)
-
-express
-var express = require(&apos;express&apos;);
-var router = express.Router();
-
-router.get(&apos;/test&apos;, function (req, res, next) {
- // 2. 服务端解析成JSON后响应
-  res.json({
-    test: req.query.test
-  })
-})
-</code></pre><p>现在我们通过给textarea添加一段有攻击目的的img标签，</p>
-<pre><code>&lt;img src=&quot;null&quot; onerror=&apos;alert(document.cookie)&apos; /&gt;
-</code></pre><p>实际的页面时这样的。<br><img src="https://images2017.cnblogs.com/blog/896144/201710/896144-20171029192732711-518077370.png" alt=""><br>ok现在，我们点击&lt;测试&gt;按钮，一个XSS攻击就发生了。下面图片中是获取了本地的部分cookie信息<br><img src="https://images2017.cnblogs.com/blog/896144/201710/896144-20171029192743164-1296520098.png" alt=""><br>实际上，我们只是模拟攻击，通过alert获取到了个人的cookie信息。但是如果是黑客的话，他们会注入一段第三方的js代码，然后将获取到的cookie信息存到他们的服务器上。这样的话黑客们就有机会拿到我们的身份认证做一些违法的事情了。</p>
+<p>使用express起一个web服务器，然后设置一下请求接口。通过ajax的GET请求将参数发往服务器，服务器解析成json后响应。将返回的数据解析后显示到页面上。（没有对返回的数据进行解码和过滤等操作。）<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">html</span><br><span class="line">&lt;textarea name=<span class="string">"txt"</span> id=<span class="string">"txt"</span> cols=<span class="string">"80"</span> rows=<span class="string">"10"</span>&gt;</span><br><span class="line">&lt;button type=<span class="string">"button"</span> id=<span class="string">"test"</span>&gt;测试&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">js</span></span><br><span class="line"><span class="regexp">var test = document.querySelector('#test')</span></span><br><span class="line"><span class="regexp">test.addEventListener('click', function () &#123;</span></span><br><span class="line"><span class="regexp">  var url = `/</span>test?test=$&#123;txt.value&#125;<span class="string">`   // 1. 发送一个GET请求</span></span><br><span class="line"><span class="string">  var xhr = new XMLHttpRequest()</span></span><br><span class="line"><span class="string">  xhr.onreadystatechange = function () &#123;</span></span><br><span class="line"><span class="string">    if (xhr.readyState === 4) &#123;</span></span><br><span class="line"><span class="string">      if ((xhr.status &gt;= 200 &amp;&amp; xhr.status &lt; 300) || xhr.status === 304) &#123;</span></span><br><span class="line"><span class="string">        // 3. 客户端解析JSON，并执行</span></span><br><span class="line"><span class="string">        var str = JSON.parse(xhr.responseText).test</span></span><br><span class="line"><span class="string">        var node = `</span>$&#123;str&#125;<span class="string">`</span></span><br><span class="line"><span class="string">        document.body.insertAdjacentHTML('beforeend', node)</span></span><br><span class="line"><span class="string">      &#125; else &#123;</span></span><br><span class="line"><span class="string">        console.log('error', xhr.responseText)</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  xhr.open('GET', url, true)</span></span><br><span class="line"><span class="string">  xhr.send(null)</span></span><br><span class="line"><span class="string">&#125;, false)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">express</span></span><br><span class="line"><span class="string">var express = require('express');</span></span><br><span class="line"><span class="string">var router = express.Router();</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">router.get('/test', function (req, res, next) &#123;</span></span><br><span class="line"><span class="string"> // 2. 服务端解析成JSON后响应</span></span><br><span class="line"><span class="string">  res.json(&#123;</span></span><br><span class="line"><span class="string">    test: req.query.test</span></span><br><span class="line"><span class="string">  &#125;)</span></span><br><span class="line"><span class="string">&#125;)</span></span><br></pre></td></tr></table></figure></p>
+<p>现在我们通过给textarea添加一段有攻击目的的img标签，<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src=<span class="string">"null"</span> onerror=<span class="string">'alert(document.cookie)'</span> /&gt;</span><br></pre></td></tr></table></figure></p>
+<p>实际的页面时这样的。<br><img src="https://images2017.cnblogs.com/blog/896144/201710/896144-20171029192732711-518077370.png" alt=""><br>ok现在，我们点击&lt;测试&gt;按钮，一个XSS攻击就发生了。下面图片中是获取了本地的部分cookie信息  </p>
+<p><img src="https://images2017.cnblogs.com/blog/896144/201710/896144-20171029192743164-1296520098.png" alt="pic">  </p>
+<p>实际上，我们只是模拟攻击，通过alert获取到了个人的cookie信息。但是如果是黑客的话，他们会注入一段第三方的js代码，然后将获取到的cookie信息存到他们的服务器上。这样的话黑客们就有机会拿到我们的身份认证做一些违法的事情了。</p>
 <p>以上，存在的一些问题，主要在于没有对用户输入的信息进行过滤，同时没有剔除掉DOM节点中存在的一些有危害的事件和一些有危害的DOM节点。</p>
 <p><strong>存储型 XSS</strong><br>存储型XSS，也叫持久型XSS，主要是将XSS代码发送到服务器（不管是数据库、内存还是文件系统等。），然后在下次请求页面的时候就不用带上XSS代码了。</p>
 <p>最典型的就是留言板XSS。用户提交了一条包含XSS代码的留言到数据库。当目标用户查询留言时，那些留言的内容会从服务器解析之后加载出来。浏览器发现有XSS代码，就当做正常的HTML和JS解析执行。XSS攻击就发生了。<br><strong>DOM XSS</strong><br>DOM XSS攻击不同于反射型XSS和存储型XSS，DOM XSS代码不需要服务器端的解析响应的直接参与，而是通过浏览器端的DOM解析。这完全是客户端的事情。</p>
@@ -88,63 +54,11 @@ txt中的代码如下
 <ol>
 <li>存在一个parse函数，对输入的数据进行处理，返回处理之后的数据</li>
 <li>对输入的数据（如DOM节点）进行解码（使用第三方库 he.js）</li>
-<li><p>过滤掉一些元素有危害的元素节点与属性节点。如script标签，onerror事件等。（使用第三方库HTMLParser.js）</p>
-<p><script src="/javascripts/htmlparse.js"></script><br><script src="/javascripts/he.js"></script><br>// 第三方库资源在文章底部给出</p>
-<p>// parse函数实现如下</p>
-<p>function parse (str) {</p>
-<pre><code>// str假如为某个DOM字符串
-// 1. result为处理之后的DOM节点
-let result = &apos;&apos;
-// 2. 解码
-let decode = he.unescape(str, {
-    strict: true
-})
-HTMLParser(decode, {
-    start (tag, attrs, unary) {
-        // 3. 过滤常见危险的标签
-        if (tag === &apos;script&apos; || tag === &apos;img&apos; || tag === &apos;link&apos; || tag === &apos;style&apos; || tag === &apos;iframe&apos; || tag === &apos;frame&apos;) return
-        result += `&lt;${tag}`
-        for (let i = 0; i &lt; attrs.length; i++) {
-            let name = (attrs[i].name).toLowerCase()
-            let value = attrs[i].escaped
-            // 3. 过滤掉危险的style属性和js事件
-            if (name === &apos;style&apos; || name === &apos;href&apos; || name === &apos;src&apos; || ~name.indexOf(&apos;on&apos;)) continue
-            result += ` ${name}=${value}`
-        }
-        result += `${unary ? &apos; /&apos; : &apos;&apos;} &gt;`
-    },
-    chars (text) {
-        result += text
-    },
-    comment (text) {
-        result += `&lt;!-- ${text} --&gt;`
-    },
-    end (tag) {
-        result += `&lt;/${tag}&gt;`
-    }
-})
-return result
-</code></pre><p>  }</p>
+<li>过滤掉一些元素有危害的元素节点与属性节点。如script标签，onerror事件等。（使用第三方库HTMLParser.js）<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">&lt;script src=<span class="string">'/javascripts/htmlparse.js'</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">&lt;script src=<span class="string">'/javascripts/he.js'</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line"><span class="comment">// 第三方库资源在文章底部给出</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// parse函数实现如下</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">parse</span> (<span class="params">str</span>) </span>&#123;</span><br><span class="line">      <span class="comment">// str假如为某个DOM字符串</span></span><br><span class="line">      <span class="comment">// 1. result为处理之后的DOM节点</span></span><br><span class="line">      <span class="keyword">let</span> result = <span class="string">''</span></span><br><span class="line">      <span class="comment">// 2. 解码</span></span><br><span class="line">      <span class="keyword">let</span> decode = he.unescape(str, &#123;</span><br><span class="line">          strict: <span class="literal">true</span></span><br><span class="line">      &#125;)</span><br><span class="line">      HTMLParser(decode, &#123;</span><br><span class="line">          start (tag, attrs, unary) &#123;</span><br><span class="line">              <span class="comment">// 3. 过滤常见危险的标签</span></span><br><span class="line">              <span class="keyword">if</span> (tag === <span class="string">'script'</span> || tag === <span class="string">'img'</span> || tag === <span class="string">'link'</span> || tag === <span class="string">'style'</span> || tag === <span class="string">'iframe'</span> || tag === <span class="string">'frame'</span>) <span class="keyword">return</span></span><br><span class="line">              result += <span class="string">`&lt;<span class="subst">$&#123;tag&#125;</span>`</span></span><br><span class="line">              <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; attrs.length; i++) &#123;</span><br><span class="line">                  <span class="keyword">let</span> name = (attrs[i].name).toLowerCase()</span><br><span class="line">                  <span class="keyword">let</span> value = attrs[i].escaped</span><br><span class="line">                  <span class="comment">// 3. 过滤掉危险的style属性和js事件</span></span><br><span class="line">                  <span class="keyword">if</span> (name === <span class="string">'style'</span> || name === <span class="string">'href'</span> || name === <span class="string">'src'</span> || ~name.indexOf(<span class="string">'on'</span>)) <span class="keyword">continue</span></span><br><span class="line">                  result += <span class="string">` <span class="subst">$&#123;name&#125;</span>=<span class="subst">$&#123;value&#125;</span>`</span></span><br><span class="line">              &#125;</span><br><span class="line">              result += <span class="string">`<span class="subst">$&#123;unary ? <span class="string">' /'</span> : <span class="string">''</span>&#125;</span> &gt;`</span></span><br><span class="line">          &#125;,</span><br><span class="line">          chars (text) &#123;</span><br><span class="line">              result += text</span><br><span class="line">          &#125;,</span><br><span class="line">          comment (text) &#123;</span><br><span class="line">              result += <span class="string">`&lt;!-- <span class="subst">$&#123;text&#125;</span> --&gt;`</span></span><br><span class="line">          &#125;,</span><br><span class="line">          end (tag) &#123;</span><br><span class="line">              result += <span class="string">`&lt;/<span class="subst">$&#123;tag&#125;</span>&gt;`</span></span><br><span class="line">          &#125;</span><br><span class="line">      &#125;)</span><br><span class="line">      <span class="keyword">return</span> result</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
-<p>因此，有了以上的parse函数之后，就可以避免大部分的xss攻击了。</p>
-<pre><code>test.addEventListener(&apos;click&apos;, function () {
-  // ... 省略部分代码
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      if ((xhr.status &gt;= 200 &amp;&amp; xhr.status &lt; 300) || xhr.status === 304) {
-        // 3. 客户端解析JSON，并执行
-        // test按钮的点击事件中唯一的变化就是使用parse对服务端返回的数据进行了解码和过滤的处理。
-        var str = parse(JSON.parse(xhr.responseText).test)
-        // 通过parse解析之后返回的数据就是安全的DOM字符串
-        var node = `${str}`
-        document.body.insertAdjacentHTML(&apos;beforeend&apos;, node)
-      }
-    }
-  }
-  // ... 省略部分代码
-}, false)
-</code></pre><p>那么，栗子说完了。</p>
+<p>因此，有了以上的parse函数之后，就可以避免大部分的xss攻击了。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">test.addEventListener(<span class="string">'click'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ... 省略部分代码</span></span><br><span class="line">  xhr.onreadystatechange = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (xhr.readyState === <span class="number">4</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> ((xhr.status &gt;= <span class="number">200</span> &amp;&amp; xhr.status &lt; <span class="number">300</span>) || xhr.status === <span class="number">304</span>) &#123;</span><br><span class="line">        <span class="comment">// 3. 客户端解析JSON，并执行</span></span><br><span class="line">        <span class="comment">// test按钮的点击事件中唯一的变化就是使用parse对服务端返回的数据进行了解码和过滤的处理。</span></span><br><span class="line">        <span class="keyword">var</span> str = parse(<span class="built_in">JSON</span>.parse(xhr.responseText).test)</span><br><span class="line">        <span class="comment">// 通过parse解析之后返回的数据就是安全的DOM字符串</span></span><br><span class="line">        <span class="keyword">var</span> node = <span class="string">`<span class="subst">$&#123;str&#125;</span>`</span></span><br><span class="line">        <span class="built_in">document</span>.body.insertAdjacentHTML(<span class="string">'beforeend'</span>, node)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// ... 省略部分代码</span></span><br><span class="line">&#125;, <span class="literal">false</span>)</span><br></pre></td></tr></table></figure></p>
+<p>那么，栗子说完了。</p>
 <p>稍微总结一下</p>
 <ol>
 <li>一旦在DOM解析过程成出现不在预期内的改变（JS代码执行或样式大量变化时），就可能发生XSS攻击</li>
@@ -164,7 +78,7 @@ return result
 <li><a href="https://github.com/mathiasbynens/he" target="_blank" rel="noopener">he</a></li>
 <li><a href="http://www.imooc.com/learn/812" target="_blank" rel="noopener">Web安全-XSS</a></li>
 </ol>
-</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">3</span></li></ul></div><div class="categories"><i class="icon icon-category"></i><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/js/">js</a><span class="category-list-count">3</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cjwa1kufs000yi4p48ne8tb65" data-title="前端安全之XSS" data-url="http://yoursite.com/2019/05/30/xss/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">3</span></li></ul></div><div class="categories"><i class="icon icon-category"></i><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/js/">js</a><span class="category-list-count">3</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cjwa1qrna0012v0p4zdxsahs0" data-title="前端安全之XSS" data-url="http://yoursite.com/2019/05/30/xss/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');
